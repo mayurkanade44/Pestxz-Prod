@@ -11,6 +11,7 @@ const QRLocation = () => {
   const { adminLoading, singleLocation } = useSelector((store) => store.admin);
   const { reportLoading } = useSelector((store) => store.report);
   const [inputField, setInputField] = useState([]);
+  const [coordinates, setCoordinates] = useState();
 
   const { id } = useParams();
 
@@ -21,9 +22,14 @@ const QRLocation = () => {
   }, [id]);
 
   useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) =>
+      setCoordinates(`${position.coords.latitude}/${position.coords.longitude}`)
+    );
+
     if (singleLocation) {
       singleLocation.services?.map((item) =>
         inputField.push({
+          serviceId: item.service._id,
           id: item._id,
           serviceName:
             item.service.serviceName ||
@@ -35,10 +41,6 @@ const QRLocation = () => {
         })
       );
     }
-
-    navigator.geolocation.getCurrentPosition((position) =>
-      console.log(position.coords.latitude, position.coords.longitude)
-    );
 
     // eslint-disable-next-line
   }, [singleLocation]);
@@ -65,22 +67,26 @@ const QRLocation = () => {
     const form = new FormData();
 
     form.append("id", " ");
+    form.append("serviceId", " ");
     form.append("serviceName", " ");
     form.append("action", " ");
     form.append("value", " ");
     form.append("comment", " ");
     form.append("uploaded", false);
     form.append("image", " ");
+    form.append("coordinates", " ");
 
     inputField.forEach((item) => {
       return (
         form.append("id", item.id),
+        form.append("serviceId", item.serviceId),
         form.append("serviceName", item.serviceName),
         form.append("action", item.action || false),
         form.append("value", item.value || " "),
         form.append("comment", item.comment || " "),
         form.append("uploaded", item.image ? true : false),
-        form.append("image", item.image ? item.image : false)
+        form.append("image", item.image ? item.image : false),
+        form.append("coordinates", coordinates)
       );
     });
 
