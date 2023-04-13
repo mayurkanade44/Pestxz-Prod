@@ -372,9 +372,9 @@ ul {
 }
 .landing .page {
   min-height: calc(100vh - var(--nav-height));
+  margin-top: 30px;
   display: grid;
   align-items: center;
-  margin-top: -3rem;
 }
 .landing h1 {
   font-weight: 700;
@@ -403,14 +403,22 @@ ul {
     margin: 0 10px;
   }
   .landing .info h1 {
-    font-size: 40px;
-    margin-bottom: 10px;
+    font-size: 33px;
+    margin-bottom: 5px !important;
   }
   .landing .form {
-    margin-top: 20px;
+    margin-top: 10px;
+    padding: 10px 20px;
   }
   .landing-logo {
-    display: none !important;
+    width: 50px !important;
+    margin-top: 15px;
+    margin-left: 145px;
+  }
+  .landing .page {
+    min-height: calc(100vh - var(--nav-height));
+    display: grid;
+    align-items: center;
   }
 }
 
@@ -545,11 +553,14 @@ ul {
     display: inline-block;
   }
   .mobile-logo {
-    width: 70px !important;
+    width: 60px !important;
   }
 
   .navbar .dropdown {
     padding: 0.1rem;
+  }
+  .user-logo {
+    display: none;
   }
 }
 

@@ -44,11 +44,11 @@ const Landing = () => {
 
   return (
     <div className="landing">
-      <div className="container page mt-4">
+      <div className="container page">
         <img src={main} alt="job hunt" className="img main-img" />
         <div className="info">
           <div className="d-flex justify-content-center landing-logo">
-            <img src={logo} alt="logo" style={{ width: 200 }} />
+            <img src={logo} alt="logo" style={{ width: 160 }} />
           </div>
           <h1 className="text-center my-2">
             Service <span>Tracking</span> Portal

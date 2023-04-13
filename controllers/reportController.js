@@ -4,15 +4,14 @@ import mongoose from "mongoose";
 import exceljs from "exceljs";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import axios from "axios";
 
 export const addRecord = async (req, res) => {
   const { action } = req.body;
   const { id } = req.params;
   try {
-    if (!action || action.length < 1)
+    if (!action || !action.length)
       return res.status(400).json({ msg: "Please select appropriate options" });
-
-    console.log(req.body.coordinates);
 
     const locationExists = await Location.findById(id);
     if (!locationExists)
@@ -32,6 +31,15 @@ export const addRecord = async (req, res) => {
       }
     }
 
+    let address = "Location Access Not Provided";
+    const cord = req.body.coordinates[1] || false;
+    if (cord) {
+      const { data } = await axios.get(
+        `${process.env.URL_START}${cord}${process.env.URL_END}`
+      );
+      address = data.items[0].title;
+    }
+
     const reportData = [];
     for (let i = 1; i < req.body.id.length; i++) {
       let temp = {};
@@ -42,7 +50,7 @@ export const addRecord = async (req, res) => {
       temp.action = req.body.action[i];
       temp.value = req.body.value[i];
       temp.comment = req.body.comment[i];
-      temp.coordinates = req.body.coordinates[i];
+      temp.address = address;
       if (req.body.uploaded[i] === "true") {
         const result = await cloudinary.uploader.upload(
           images[i].tempFilePath,
@@ -196,6 +204,7 @@ export const generateServiceReport = async (req, res) => {
       { header: "Activity", key: "activity" },
       { header: "Value", key: "value" },
       { header: "Operator Comment", key: "comment" },
+      { header: "User Location", key: "address" },
       { header: "Image Link", key: "image" },
       { header: "Serviced By", key: "user" },
     ];
@@ -212,6 +221,7 @@ export const generateServiceReport = async (req, res) => {
         activity: item.services.action,
         value: item.services.value,
         comment: item.services.comment,
+        address: item.services.address,
         image: item.services.image,
         user: item.user.name,
       });

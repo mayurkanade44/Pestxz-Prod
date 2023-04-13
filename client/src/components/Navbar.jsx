@@ -23,7 +23,7 @@ const Navbar = () => {
           <img
             src={logo}
             alt="logo"
-            style={{ width: 95 }}
+            style={{ width: 65 }}
             className="mobile-logo"
           />
         </div>
@@ -33,7 +33,7 @@ const Navbar = () => {
             className="btn nav-btn"
             onClick={() => setShowLogout(!showLogout)}
           >
-            <FaUserCircle />
+            <FaUserCircle className="user-logo" />
             {user.name}
             <FaCaretDown />
           </button>

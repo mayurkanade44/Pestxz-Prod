@@ -23,7 +23,7 @@ const QRLocation = () => {
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) =>
-      setCoordinates(`${position.coords.latitude}/${position.coords.longitude}`)
+      setCoordinates(`${position.coords.latitude},${position.coords.longitude}`)
     );
 
     if (singleLocation) {
