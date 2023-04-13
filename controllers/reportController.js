@@ -31,11 +31,13 @@ export const addRecord = async (req, res) => {
       }
     }
 
+    console.log(req.body.coordinates[1]);
+
     let address = "Location Access Not Provided";
     const cord = req.body.coordinates[1] || false;
     if (cord) {
       const { data } = await axios.get(
-        `${process.env.URL_START}${cord}${process.env.URL_END}`
+        `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${cord}&apiKey=${process.env.HERE_API_KEY}`
       );
       address = data.items[0].title;
     }
