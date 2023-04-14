@@ -8,6 +8,7 @@ import Report from "./Report";
 import ServiceProduct from "./ServiceProduct";
 import SingleClient from "./SingleClient";
 import Stats from "./Stats";
+import SuperAdmin from "./SuperAdmin";
 
 export {
   Landing,
@@ -20,4 +21,5 @@ export {
   QRLocation,
   Profile,
   ServiceProduct,
+  SuperAdmin,
 };

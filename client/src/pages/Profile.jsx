@@ -59,7 +59,7 @@ const Profile = () => {
               <div className="col-md-3">
                 <h5>Contact - {allUsers[0].company.companyContact} </h5>
               </div>
-              <div className="col-md-3">
+              <div className="col-auto">
                 <h5>Email Id - {allUsers[0].company.companyEmail} </h5>
               </div>
             </>
@@ -75,7 +75,7 @@ const Profile = () => {
                     Role
                   </th>
                   <th className="text-center">Login Id</th>
-                  <th style={{ width: 240 }} className="text-center">
+                  <th style={{ width: 290 }} className="text-center">
                     Action
                   </th>
                 </tr>
@@ -88,14 +88,22 @@ const Profile = () => {
                     <td>{item.email}</td>
                     <td className="text-center">
                       {item.role === "Admin" ? (
-                        <button
-                          className="btn btn-success btn-sm me-2"
-                          onClick={() => addUser()}
-                        >
-                          Register User
-                        </button>
+                        <div className="d-flex justify-content-center">
+                          <button
+                            className="btn btn-success btn-sm me-2"
+                            onClick={() => addUser()}
+                          >
+                            Register User
+                          </button>
+                          <button
+                            className="btn btn-sm me-2"
+                            onClick={() => forgotPassword(item)}
+                          >
+                            Forgot Password
+                          </button>
+                        </div>
                       ) : (
-                        <div className="d-flex">
+                        <div className="d-flex justify-content-center">
                           <button
                             className="btn btn-sm me-2"
                             onClick={() => forgotPassword(item)}

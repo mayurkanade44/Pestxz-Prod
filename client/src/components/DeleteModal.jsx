@@ -3,7 +3,7 @@ const DeleteModal = ({ handleDelete, name, title }) => {
     <div>
       <button
         type="button"
-        className="btn btn-danger"
+        className="btn btn-danger btn-sm"
         data-bs-toggle="modal"
         data-bs-target="#exampleModal"
       >
@@ -33,9 +33,11 @@ const DeleteModal = ({ handleDelete, name, title }) => {
               Are you sure you want to
               <b className="ms-1">
                 Delete {name} {title} ?
-                {title === "Client" && (
+                {(title === "Client" || title === "Company") && (
                   <p className="text-danger mb-0">
-                    {`This will also delete the all the ${name} locations and
+                    {`This will also delete the all the ${name} ${
+                      title === "Client" ? "locations" : "users"
+                    } and
                     related data.`}
                   </p>
                 )}

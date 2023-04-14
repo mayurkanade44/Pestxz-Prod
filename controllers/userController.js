@@ -41,11 +41,11 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ msg: "Please provide all values" });
 
     const user = await User.findOne({ email, active: true });
-    if (!user) return res.status(400).json({ msg: "Invalid email id" });
+    if (!user) return res.status(401).json({ msg: "Invalid Credentials" });
 
     const comparePassword = await user.comparePassword(password);
     if (!comparePassword)
-      return res.status(400).json({ msg: "Invalid Password" });
+      return res.status(401).json({ msg: "Invalid Credentials" });
 
     const token = await user.createJWT();
 

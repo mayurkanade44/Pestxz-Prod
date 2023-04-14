@@ -1,7 +1,12 @@
 import express from "express";
-import { registerCompany } from "../controllers/companyController.js";
+import {
+  allCompanies,
+  deleteCompany,
+  registerCompany,
+} from "../controllers/companyController.js";
 const router = express.Router();
 
-router.route("/registerCompany").post(registerCompany);
+router.route("/registerCompany").post(registerCompany).get(allCompanies);
+router.route("/:id").delete(deleteCompany);
 
 export default router;

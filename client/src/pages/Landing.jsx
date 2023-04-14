@@ -36,6 +36,10 @@ const Landing = () => {
         setTimeout(() => {
           navigate(`/qr-location/${locationId}`);
         }, 1000);
+      } else if (user.role === "Super Admin") {
+        setTimeout(() => {
+          navigate(`/superAdmin`);
+        }, 1000);
       }
     }
 

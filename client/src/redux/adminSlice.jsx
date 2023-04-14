@@ -19,6 +19,7 @@ const initialState = {
   isEditing: false,
   clientId: "",
   locationId: "",
+  page: 1,
 };
 
 export const clientRegister = createAsyncThunk(
@@ -49,9 +50,11 @@ export const updateClient = createAsyncThunk(
 
 export const singleClient = createAsyncThunk(
   "admin/singleClient",
-  async (id, thunkAPI) => {
+  async ({ id, search, page }, thunkAPI) => {
     try {
-      const res = await authFetch.get(`/location/singleShipTo/${id}`);
+      let url = `/location/singleShipTo/${id}?page=${page}`;
+      if (search) url += `&search=${search}`;
+      const res = await authFetch.get(url);
       return res.data;
     } catch (error) {
       console.log(error);
@@ -130,13 +133,13 @@ export const deleteService = createAsyncThunk(
 
 export const addLocation = createAsyncThunk(
   "admin/addLocation",
-  async ({ clientId, location }, thunkAPI) => {
+  async ({ clientId, location, page }, thunkAPI) => {
     try {
       const res = await authFetch.post(
         `/location/addLocation/${clientId}`,
         location
       );
-      thunkAPI.dispatch(singleClient(clientId));
+      thunkAPI.dispatch(singleClient({ id: clientId, search: "", page: 1 }));
       return res.data;
     } catch (error) {
       console.log(error);
@@ -245,6 +248,7 @@ const adminSlice = createSlice({
         state.adminLoading = false;
         state.singleClientDetails = payload.clientDetails;
         state.singleClientLocations = payload.clientLocations;
+        state.totalPages = payload.pages
       })
       .addCase(singleClient.rejected, (state, { payload }) => {
         state.adminLoading = false;

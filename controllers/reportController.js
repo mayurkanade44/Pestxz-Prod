@@ -31,9 +31,8 @@ export const addRecord = async (req, res) => {
       }
     }
 
-    console.log(req.body.coordinates[1]);
-
     let address = "Location Access Not Provided";
+
     const cord = req.body.coordinates[1] || false;
     if (cord) {
       const { data } = await axios.get(
@@ -58,7 +57,7 @@ export const addRecord = async (req, res) => {
           images[i].tempFilePath,
           {
             use_filename: true,
-            folder: "reports",
+            folder: "Pestxz",
             quality: 30,
           }
         );
@@ -243,7 +242,7 @@ export const generateServiceReport = async (req, res) => {
       {
         resource_type: "raw",
         use_filename: true,
-        folder: "service-cards",
+        folder: "Pestxz",
       }
     );
 

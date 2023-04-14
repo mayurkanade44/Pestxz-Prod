@@ -14,6 +14,7 @@ import {
   QRLocation,
   Profile,
   ServiceProduct,
+  SuperAdmin,
 } from "./pages";
 
 function App() {
@@ -42,6 +43,14 @@ function App() {
           element={
             <ProtectedRoute role={["Admin", "Operator"]}>
               <QRLocation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/superAdmin"
+          element={
+            <ProtectedRoute role={["Super Admin"]}>
+              <SuperAdmin />
             </ProtectedRoute>
           }
         />

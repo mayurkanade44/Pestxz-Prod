@@ -42,7 +42,7 @@ app.use("/api/user", userRouter);
 app.use(
   "/api/company",
   authenticateUser,
-  authorizeUser("Admin"),
+  authorizeUser("Super Admin"),
   companyRouter
 );
 app.use("/api/shipTo", authenticateUser, authorizeUser("Admin"), shipToRouter);

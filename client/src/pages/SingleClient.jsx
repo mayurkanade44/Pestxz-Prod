@@ -1,16 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { AddLocation, Loading } from "../components";
+import { AddLocation, InputSelect, Loading } from "../components";
 import { setEdit, singleClient } from "../redux/adminSlice";
 import { saveAs } from "file-saver";
 
 const SingleClient = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { singleClientDetails, singleClientLocations, adminLoading } =
-    useSelector((store) => store.admin);
-
+  const {
+    singleClientDetails,
+    singleClientLocations,
+    adminLoading,
+    page,
+    totalPages,
+  } = useSelector((store) => store.admin);
+  const [search, setSearch] = useState("");
+  const [tempSearch, setTempSearch] = useState("");
   const [toggle, setToggle] = useState({
     open: false,
     ser: false,
@@ -20,14 +26,29 @@ const SingleClient = () => {
   const { open, ser } = toggle;
 
   useEffect(() => {
-    dispatch(singleClient(id));
+    dispatch(singleClient({ id, search, page }));
 
     // eslint-disable-next-line
-  }, [open]);
+  }, [open, search, page]);
 
   const downloadImage = (url, name) => {
     saveAs(url, `${name}.jpg`); // Put your image url here.
   };
+
+  const debounce = () => {
+    let timeoutId;
+    return (e) => {
+      setTempSearch(e.target.value);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setSearch(e.target.value);
+      }, 1000);
+    };
+  };
+
+  const optimizedDebounce = useMemo(() => debounce(), []);
+
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   const openEdit = (item) => {
     dispatch(
@@ -38,7 +59,7 @@ const SingleClient = () => {
         locationId: item._id,
       })
     );
-  
+
     if (item.services[0].service.serviceName)
       setToggle({ open: true, ser: true });
     else setToggle({ open: true, ser: false });
@@ -66,10 +87,23 @@ const SingleClient = () => {
         <h4>Client Name: {singleClientDetails.shipToName}</h4>
       </div>
       {!open ? (
-        <div className="col-md-3">
-          <button className="btn btn-success mb-2" onClick={() => addNew()}>
-            Add New Location
-          </button>
+        <div className="d-flex justify-content-between">
+          <div className="col-md-3">
+            <button className="btn btn-success mb-2" onClick={() => addNew()}>
+              Add New Location
+            </button>
+          </div>
+          <div className="col-md-4">
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search Location"
+                value={tempSearch}
+                onChange={optimizedDebounce}
+              />
+            </div>
+          </div>
         </div>
       ) : (
         <AddLocation
@@ -131,6 +165,25 @@ const SingleClient = () => {
               ))}
             </tbody>
           </table>
+          <nav className="d-flex justify-content-center">
+            <ul className="pagination">
+              {pages.map((item) => (
+                <li
+                  className={`page-item  ${page === item && "active"}`}
+                  key={item}
+                >
+                  <button
+                    className="page-link border border-danger"
+                    onClick={(e) =>
+                      dispatch(setEdit({ page: Number(e.target.textContent) }))
+                    }
+                  >
+                    {item}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       )}
     </div>

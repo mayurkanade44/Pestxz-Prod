@@ -6,7 +6,6 @@ import fs from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { createCanvas, loadImage } from "canvas";
-import mongoose from "mongoose";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -48,7 +47,7 @@ export const addLocation = async (req, res) => {
 
     const result = await cloudinary.uploader.upload("files/image.jpeg", {
       use_filename: true,
-      folder: "service-cards",
+      folder: "Pestxz",
     });
 
     loc.qr = result.secure_url;
@@ -112,7 +111,7 @@ export const editLocation = async (req, res) => {
 
     const result = await cloudinary.uploader.upload("files/image.jpeg", {
       use_filename: true,
-      folder: "service-cards",
+      folder: "Pestxz",
     });
 
     req.body.qr = result.secure_url;
@@ -145,19 +144,31 @@ export const deleteLocation = async (req, res) => {
 
 export const getSingleShipTo = async (req, res) => {
   const { id } = req.params;
+  const { search } = req.query;
   try {
     const clientDetails = await ShipTo.findById(id);
     if (!clientDetails)
       return res.status(404).json({ msg: "Client details not found" });
 
-    const clientLocations = await Location.find({ shipTo: id })
+    const query = {
+      shipTo: id,
+    };
+    if (search) query.location = { $regex: search, $options: "i" };
+
+    let result = Location.find(query)
       .populate({
         path: "services.service",
         select: "serviceName productName",
       })
       .sort("floor");
 
-    return res.status(200).json({ clientDetails, clientLocations });
+    const page = Number(req.query.page) || 1;
+    result = result.skip((page - 1) * 10).limit(10);
+
+    const clientLocations = await result;
+    const pages = Math.ceil((await Location.countDocuments(query)) / 10);
+
+    return res.status(200).json({ clientDetails, clientLocations, pages });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later" });
