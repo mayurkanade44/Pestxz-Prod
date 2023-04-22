@@ -145,23 +145,8 @@ export const generateServiceReport = async (req, res) => {
     if (user && user !== "All")
       query.push({ $match: { "user._id": new mongoose.Types.ObjectId(user) } });
     if (serviceId && serviceId !== "All")
-      query.push({ $match: { "reportData.id": serviceId } });
-    // if (floor && location) {
-    //   query.push({
-    //     $match: {
-    //       "location.floor": floor,
-    //       "location.location": location,
-    //     },
-    //   });
-    // } else if (floor) {
-    //   query.push({
-    //     $match: {
-    //       "location.floor": floor,
-    //     },
-    //   });
-    // }
+      query.push({ $match: { "reportData.serviceId": serviceId } });
     if (location && location !== "All") {
-      console.log(location);
       query.push({
         $match: {
           "location._id": new mongoose.Types.ObjectId(location),
@@ -180,14 +165,6 @@ export const generateServiceReport = async (req, res) => {
         createdAt: 1,
       },
     });
-
-    // const queryObject = { shipTo: shipTo };
-    // let reportData;
-    // if (location) queryObject.location = location;
-    // if (serviceId) {
-    //   queryObject.reportData = { $elemMatch: { id: serviceId } };
-    //   reportData = { "reportData.$": 1 };
-    // }
 
     const data = await Report.aggregate(query);
 
@@ -208,7 +185,7 @@ export const generateServiceReport = async (req, res) => {
       { header: "Activity", key: "activity" },
       { header: "Value", key: "value" },
       { header: "Operator Comment", key: "comment" },
-      { header: "User Location", key: "address" },
+      { header: "Operator Location", key: "address" },
       { header: "Image Link", key: "image" },
       { header: "Serviced By", key: "user" },
     ];
@@ -226,19 +203,13 @@ export const generateServiceReport = async (req, res) => {
         value: item.services.value,
         comment: item.services.comment,
         address: item.services.address,
-        image: item.services.image
-          ? { text: item.services.image, hyperlink: item.services.image }
-          : "No Image",
+        image: item.services.image && {
+          text: "Service Image",
+          hyperlink: item.services.image,
+        },
         user: item.user.name,
       });
     });
-
-    // const newRows = worksheet.addRows(data);
-    // console.log(newRows);
-
-    // data.map((item) =>
-    //   worksheet.addRow({ name: item.shipTo, floor: item.floor })
-    // );
 
     await workbook.xlsx.writeFile(`./files/${data[0].shipTo}.xlsx`);
 
@@ -518,7 +489,7 @@ const sendEmail = async (mailData) => {
 
     const msg = {
       to: mailData.email,
-      from: { email: "noreply.epcorn@gmail.com", name: mailData.name },
+      from: { email: "noreply.epcorn@gmail.com", name: mailData.company },
       dynamic_template_data: {
         name: mailData.name,
         date: mailData.date,
