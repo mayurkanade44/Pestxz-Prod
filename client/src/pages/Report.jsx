@@ -19,9 +19,8 @@ const Report = () => {
   const { client, subLocation, service, fromDate, toDate, user } = reportField;
 
   const dispatch = useDispatch();
-  const { allClients, companyServices, singleClientLocations } = useSelector(
-    (store) => store.admin
-  );
+  const { allClients, companyServices, singleClientLocations, page } =
+    useSelector((store) => store.admin);
   const { reportLoading, download } = useSelector((store) => store.report);
   const { allUsers } = useSelector((store) => store.user);
 
@@ -30,7 +29,7 @@ const Report = () => {
     dispatch(getAllUsers());
 
     if (client && client !== "Select") {
-      dispatch(singleClient(client));
+      dispatch(singleClient({ id: client, search: "", page }));
     }
 
     // eslint-disable-next-line

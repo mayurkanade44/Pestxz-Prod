@@ -1,10 +1,13 @@
 import Report from "../models/Report.js";
 import Location from "../models/Location.js";
+import Company from "../models/Company.js";
 import mongoose from "mongoose";
 import exceljs from "exceljs";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import axios from "axios";
+import PdfPrinter from "pdfmake";
+import sgMail from "@sendgrid/mail";
 
 export const addRecord = async (req, res) => {
   const { action } = req.body;
@@ -223,7 +226,9 @@ export const generateServiceReport = async (req, res) => {
         value: item.services.value,
         comment: item.services.comment,
         address: item.services.address,
-        image: item.services.image,
+        image: item.services.image
+          ? { text: item.services.image, hyperlink: item.services.image }
+          : "No Image",
         user: item.user.name,
       });
     });
@@ -260,18 +265,20 @@ export const generateServiceReport = async (req, res) => {
 export const weeklyReport = async (req, res) => {
   try {
     const finalData = [];
+    const today = new Date();
+    const today1 = new Date();
+    const fromDate = new Date(today1.setDate(today1.getDate() - 7));
+    const endDate = new Date(today.setDate(today.getDate() + 1));
 
-    const data = await Report.find({
-      shipTo: "642d62c33fa94fb3a9b46e3c",
-      createdAt: { $gte: new Date("2023-04-08"), $lte: new Date("2023-04-12") },
-    });
+    const companies = await Company.find();
+    const companyName = companies[0].companyName;
 
     const allLocations = await Location.find({
-      shipTo: "642d62c33fa94fb3a9b46e3c",
+      shipTo: "6438f0af32febf3260236ede",
     })
       .populate({
-        path: "reports services.service",
-        select: "reportData createdAt serviceName productName",
+        path: "services.service",
+        select: "serviceName productName",
       })
       .select("floor location services.count");
 
@@ -289,7 +296,7 @@ export const weeklyReport = async (req, res) => {
       },
       {
         $match: {
-          "shipTo._id": new mongoose.Types.ObjectId("642d62c33fa94fb3a9b46e3c"),
+          "shipTo._id": new mongoose.Types.ObjectId("6438f0af32febf3260236ede"),
         },
       },
       { $unwind: "$reportData" },
@@ -305,8 +312,17 @@ export const weeklyReport = async (req, res) => {
         $unwind: "$location",
       },
       {
+        $match: {
+          createdAt: {
+            $gte: fromDate,
+            $lte: endDate,
+          },
+        },
+      },
+      {
         $project: {
           _id: 0,
+          client: { name: "$shipTo.shipToName", email: "$shipTo.shipToEmail" },
           location: "$location._id",
           services: "$reportData",
           createdAt: 1,
@@ -314,25 +330,21 @@ export const weeklyReport = async (req, res) => {
       },
     ]);
 
-    const today = new Date();
-    today.setDate(today.getDate());
-
     for (let i = 0; i < allLocations.length; i++) {
       for (let j = 0; j < allLocations[i].services.length; j++) {
         let temp = allLocations[i].services[j];
-        const serv = {
-          id: temp.service.id,
-          name:
-            temp.service.serviceName ||
+        const serv = [
+          temp.service.serviceName ||
             temp.service.productName + " - " + temp.count,
-          0: "",
-          1: "",
-          2: "",
-          3: "",
-          4: "",
-          5: "",
-          6: "",
-        };
+          "-",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-",
+          temp.service.id,
+        ];
         if (j === 0) {
           finalData.push({
             id: allLocations[i].id,
@@ -348,20 +360,178 @@ export const weeklyReport = async (req, res) => {
       for (let j = 0; j < data1.length; j++) {
         if (finalData[i].id === data1[j].location.toString()) {
           for (let k = 0; k < finalData[i].services.length; k++) {
-            if (
-              finalData[i].services[k].name === data1[j].services.serviceName
-            ) {
-              finalData[i].services[k][data1[j].createdAt.getDay()] =
-                data1[j].services.action;
+            if (finalData[i].services[k][8] === data1[j].services.serviceId) {
+              if (data1[j].createdAt.getDay() === 0) {
+                finalData[i].services[k][7] = data1[j].services.action;
+              } else
+                finalData[i].services[k][data1[j].createdAt.getDay()] =
+                  data1[j].services.action;
             }
           }
         }
       }
     }
 
-    res.status(200).json({ finalData });
+    const date = `From ${fromDate.toISOString().split("T")[0]} To ${
+      new Date(endDate.setDate(endDate.getDate() - 2))
+        .toISOString()
+        .split("T")[0]
+    }`;
+
+    const link = await generatePDF({
+      data: finalData,
+      clintName: data1[0].client.name,
+    });
+
+    const mailData = {
+      link,
+      name: data1[0].client.name,
+      email: data1[0].client.email,
+      date,
+      company: companyName,
+    };
+
+    const mail = await sendEmail(mailData);
+
+    if (mail) return res.status(200).json({ msg: "Report successfully sent" });
+
+    return res
+      .status(400)
+      .json({ msg: "There is some error, Try again later" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error, try again later" });
+  }
+};
+
+export const generatePDF = async ({ data, clintName }) => {
+  try {
+    const docDefinition = {
+      content: [{ text: `Weekly Report Of ${clintName}`, style: "header" }],
+    };
+
+    for (let i = 0; i < data.length; i++) {
+      const temp = [
+        [
+          { text: "Type Of Work", style: "tableHeader" },
+          { text: "Mon", style: "tableHeader" },
+          { text: "Tue", style: "tableHeader" },
+          { text: "Wed", style: "tableHeader" },
+          { text: "Thu", style: "tableHeader" },
+          { text: "Fri", style: "tableHeader" },
+          { text: "Sat", style: "tableHeader" },
+          { text: "Sun", style: "tableHeader" },
+        ],
+      ];
+      for (let j = 0; j < data[i].services.length; j++) {
+        const service = Object.values(data[i].services[j]);
+        service.pop();
+        temp.push(service);
+      }
+      docDefinition["content"].push(
+        {
+          text: [
+            { text: "Location - ", bold: true },
+            `${data[i].floor} / ${data[i].location}`,
+          ],
+          style: "subheader",
+        },
+        {
+          style: "tableExample",
+          table: {
+            headerRows: 1,
+            body: temp,
+          },
+        }
+      );
+    }
+
+    docDefinition.styles = {
+      header: {
+        fontSize: 18,
+        color: "#003893",
+        bold: true,
+        alignment: "center",
+        margin: [0, 0, 0, 30],
+      },
+      subheader: {
+        margin: [0, 0, 0, 5],
+      },
+      tableExample: {
+        alignment: "center",
+        margin: [0, 0, 0, 25],
+        fontSize: 10,
+      },
+      tableHeader: {
+        bold: true,
+        fontSize: 10,
+      },
+    };
+
+    const fonts = {
+      Roboto: {
+        normal: "./fonts/Roboto-Regular.ttf",
+        bold: "./fonts/Roboto-Bold.ttf",
+      },
+    };
+
+    const printer = new PdfPrinter(fonts);
+
+    var pdfDoc = printer.createPdfKitDocument(docDefinition, {});
+    let writeStream = fs.createWriteStream(`./files/${clintName}.pdf`);
+    pdfDoc.pipe(writeStream);
+    pdfDoc.end();
+
+    const result = await cloudinary.uploader.upload(
+      `./files/${clintName}.pdf`,
+      {
+        resource_type: "raw",
+        use_filename: true,
+        folder: "Pestxz",
+      }
+    );
+    fs.unlinkSync(`./files/${clintName}.pdf`);
+    return result.secure_url;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const sendEmail = async (mailData) => {
+  try {
+    const fileType = mailData.link.split(".").pop();
+    const result = await axios.get(mailData.link, {
+      responseType: "arraybuffer",
+    });
+    const base64File = Buffer.from(result.data, "binary").toString("base64");
+
+    const attachObj = {
+      content: base64File,
+      filename: `${mailData.name}.${fileType}`,
+      type: `application/${fileType}`,
+      disposition: "attachment",
+    };
+    const attach = [attachObj];
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    const msg = {
+      to: mailData.email,
+      from: { email: "noreply.epcorn@gmail.com", name: "PestXZ" },
+      dynamic_template_data: {
+        name: mailData.name,
+        date: mailData.date,
+        company: mailData.company,
+      },
+      template_id: "d-658ff3504861472fbdc0ec1419af4869",
+      attachments: attach,
+    };
+
+    await sgMail.send(msg);
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
   }
 };
