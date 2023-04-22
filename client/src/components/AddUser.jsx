@@ -77,7 +77,7 @@ const AddUser = ({ setToggle }) => {
               name="role"
               value={role}
               handleChange={handleRegister}
-              list={["Select", "Operator", "Supervisor"]}
+              list={["Select", "Operator"]}
             />
           )}
           <button className="btn btn-success" type="submit">

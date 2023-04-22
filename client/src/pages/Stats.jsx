@@ -49,7 +49,7 @@ const Stats = () => {
                 <div className="card-body py-2">
                   <div className="text-start">
                     <p className="card-text mb-0">
-                      Address - {item.shipToAddress.slice(0, 32)}...
+                      Address - {item.shipToAddress.slice(0, 25)}...
                     </p>
                     <p className="card-text mb-0">Email - {item.shipToEmail}</p>
                     <p className="card-text mb-0">

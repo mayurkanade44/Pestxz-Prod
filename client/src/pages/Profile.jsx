@@ -49,18 +49,19 @@ const Profile = () => {
         <div className="row">
           {allUsers[0] && (
             <>
-              <h3 className="text-center mt-0">Company Details</h3>
-              <div className="col-md-5">
-                <h5>Name - {allUsers[0].company.companyName} </h5>
+              <div className="col-md-12 text-center text-primary ">
+                <h3 className="fw-bold">
+                  {allUsers[0].company.companyName}{" "}
+                </h3>
               </div>
-              <div className="col-md-7">
+              <div className="col-md-12">
                 <h5>Address - {allUsers[0].company.companyAddress} </h5>
               </div>
-              <div className="col-md-3">
-                <h5>Contact - {allUsers[0].company.companyContact} </h5>
-              </div>
-              <div className="col-auto">
-                <h5>Email Id - {allUsers[0].company.companyEmail} </h5>
+              <div className="col-md-auto">
+                <h5>
+                  Contact - {allUsers[0].company.companyContact} / Email Id -{" "}
+                  {allUsers[0].company.companyEmail}{" "}
+                </h5>
               </div>
             </>
           )}

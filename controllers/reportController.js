@@ -274,7 +274,7 @@ export const weeklyReport = async (req, res) => {
     const companyName = companies[0].companyName;
 
     const allLocations = await Location.find({
-      shipTo: "6438f0af32febf3260236ede",
+      shipTo: "6443bb09813966fb28549643",
     })
       .populate({
         path: "services.service",
@@ -296,7 +296,7 @@ export const weeklyReport = async (req, res) => {
       },
       {
         $match: {
-          "shipTo._id": new mongoose.Types.ObjectId("6438f0af32febf3260236ede"),
+          "shipTo._id": new mongoose.Types.ObjectId("6443bb09813966fb28549643"),
         },
       },
       { $unwind: "$reportData" },
@@ -518,7 +518,7 @@ const sendEmail = async (mailData) => {
 
     const msg = {
       to: mailData.email,
-      from: { email: "noreply.epcorn@gmail.com", name: "PestXZ" },
+      from: { email: "noreply.epcorn@gmail.com", name: mailData.name },
       dynamic_template_data: {
         name: mailData.name,
         date: mailData.date,

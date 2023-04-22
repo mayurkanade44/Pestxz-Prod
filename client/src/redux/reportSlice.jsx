@@ -45,7 +45,12 @@ export const createReport = createAsyncThunk(
 const reportSlice = createSlice({
   name: "report",
   initialState,
-  reduce: {},
+  reduce: {
+    clearReport: (state) => {
+      state.reportLoading = false;
+      state.download = "";
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addLocationRecord.pending, (state) => {
@@ -74,5 +79,7 @@ const reportSlice = createSlice({
       });
   },
 });
+
+export const { clearReport } = reportSlice.actions;
 
 export default reportSlice.reducer;

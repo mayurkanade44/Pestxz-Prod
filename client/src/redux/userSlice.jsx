@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authFetch, unauthorizedResponse } from "../utils/auth";
 import { toast } from "react-toastify";
+import { clearSuperAdmin } from "./superAdminSlice";
+import { clearAdminValues } from "./adminSlice";
+import { clearReport } from "./reportSlice";
 
 const initialState = {
   userLoading: false,
@@ -76,6 +79,21 @@ export const passwordChange = createAsyncThunk(
     } catch (error) {
       console.log(error);
       return unauthorizedResponse(error, thunkAPI);
+    }
+  }
+);
+
+export const clearStore = createAsyncThunk(
+  "users/clearStore",
+  async (_, thunkAPI) => {
+    try {
+      thunkAPI.dispatch(logoutUser());
+      thunkAPI.dispatch(clearUserValues());
+      thunkAPI.dispatch(clearSuperAdmin());
+      thunkAPI.dispatch(clearAdminValues());
+      thunkAPI.dispatch(clearReport());
+    } catch (error) {
+      console.log(error);
     }
   }
 );

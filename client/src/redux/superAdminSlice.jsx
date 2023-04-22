@@ -57,6 +57,7 @@ const superAdminSlice = createSlice({
     handleSuperAdmin: (state, { payload: { name, value } }) => {
       state[name] = value;
     },
+    clearSuperAdmin: (state) => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(registerCompany.pending, (state) => {
@@ -101,6 +102,6 @@ const superAdminSlice = createSlice({
   },
 });
 
-export const { handleSuperAdmin } = superAdminSlice.actions;
+export const { handleSuperAdmin, clearSuperAdmin } = superAdminSlice.actions;
 
 export default superAdminSlice.reducer;
