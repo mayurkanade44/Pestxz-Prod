@@ -1,15 +1,16 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Error = () => {
-  const navigate = useNavigate()
   return (
     <div
       className="row d-flex flex-column justify-content-center align-items-center"
       style={{ minHeight: "90vh" }}
     >
-      <h2 className="text-center">Page Not Found</h2>
-      <div className="col-3">
-        <button className="btn" type="button" onClick={() => navigate(-1)}>Go Back</button>
+      <h2 className="text-center">Page Not Found / Access Denied</h2>
+      <div className="col-1">
+        <Link to={"/"} className="btn" type="button">
+          Go Back
+        </Link>
       </div>
     </div>
   );

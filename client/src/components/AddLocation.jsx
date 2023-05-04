@@ -307,7 +307,7 @@ const AddLocation = ({ clientId, alreadyService, toggle, ser }) => {
               onClick={handleSubmit}
               disabled={adminLoading}
             >
-              {adminLoading ? "saving..." : isEditing ? "Save" : "Add Location"}
+              {adminLoading ? "saving..." : isEditing ? "Update" : "Add Location"}
             </button>
             {isEditing && (
               <>

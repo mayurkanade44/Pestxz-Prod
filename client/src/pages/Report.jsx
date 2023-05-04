@@ -19,8 +19,13 @@ const Report = () => {
   const { client, subLocation, service, fromDate, toDate, user } = reportField;
 
   const dispatch = useDispatch();
-  const { allClients, companyServices, singleClientLocations, page } =
-    useSelector((store) => store.admin);
+  const {
+    allClients,
+    companyServices,
+    singleClientLocations,
+    companyProducts,
+    page,
+  } = useSelector((store) => store.admin);
   const { reportLoading, download } = useSelector((store) => store.report);
   const { allUsers } = useSelector((store) => store.user);
 
@@ -104,11 +109,11 @@ const Report = () => {
             list={["All", ...location]}
           />
           <InputSelect
-            labelText="Service"
+            labelText="Services / Products"
             name="service"
             value={service}
             handleChange={handleSearch}
-            list={["All", ...companyServices]}
+            list={["All", ...companyServices, ...companyProducts]}
           />
           <InputSelect
             labelText="User"

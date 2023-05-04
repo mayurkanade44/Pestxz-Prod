@@ -108,7 +108,13 @@ const userSlice = createSlice({
     handleUser: (state, { payload: { name, value } }) => {
       state[name] = value;
     },
-    clearUserValues: (state) => initialState,
+    clearUserValues: (state) => {
+      state.name = "";
+      state.password = "";
+      state.email = "";
+      state.role = "";
+      state.isEditing = false;
+    },
     logoutUser: (state) => {
       state.user = null;
       state.isSidebarOpen = false;

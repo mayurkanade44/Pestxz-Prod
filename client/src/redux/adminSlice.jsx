@@ -185,7 +185,8 @@ export const deleteLocation = createAsyncThunk(
       const res = await authFetch.delete(
         `/location/locationServices/${locationId}`
       );
-      thunkAPI.dispatch(singleClient(clientId));
+
+      thunkAPI.dispatch(singleClient({ id: clientId, search: "", page: 1 }));
       return res.data;
     } catch (error) {
       console.log(error);
@@ -248,7 +249,7 @@ const adminSlice = createSlice({
         state.adminLoading = false;
         state.singleClientDetails = payload.clientDetails;
         state.singleClientLocations = payload.clientLocations;
-        state.totalPages = payload.pages
+        state.totalPages = payload.pages;
       })
       .addCase(singleClient.rejected, (state, { payload }) => {
         state.adminLoading = false;

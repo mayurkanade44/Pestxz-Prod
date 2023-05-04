@@ -112,7 +112,9 @@ const SuperAdmin = () => {
                   <td className="text-center">{item.companyEmail}</td>
                   <td className="text-center">
                     <DeleteModal
-                      handleDelete={() => dispatch(deleteCompany(item._id))}
+                      handleDelete={() => {
+                        dispatch(deleteCompany(item._id));
+                      }}
                       name={item.companyName}
                       title="Company"
                     />

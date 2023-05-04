@@ -14,11 +14,11 @@ const ProtectedRoute = ({ role, children }) => {
 
     // eslint-disable-next-line
   }, [id]);
+  
 
   if (!user) return <Navigate to="/" />;
   else if (!role.includes(user.role)) {
-    toast.error("You do not have permission");
-    return <Navigate to="/dashboard/access-denied" />;
+    return <Navigate to="/access-denied" />;
   }
   return children;
 };
